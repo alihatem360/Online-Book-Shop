@@ -2,15 +2,32 @@ import React, { useRef } from "react";
 import { useDispatch } from "react-redux";
 import { insertBook } from "../Store/bookSclice";
 import { useSelector } from "react-redux";
+import { useState } from "react";
+import {editeBooks} from "../Store/bookSclice";
 
-const Addform = () => {
+const Addform = ({ bookInfo, Edit , setEdit}) => {
 
 
   const { isLoggedIn } = useSelector((state) => state.auths);
-  console.log("dddddddddddddddddddddddddddddddddd", isLoggedIn);
-
-
   const dispatch = useDispatch();
+
+  const [EditedBook, setEditedBook] = useState({
+    id: Edit ? bookInfo.id : "",
+    title: Edit ? bookInfo.title : "",
+    price: Edit ? bookInfo.price : "",
+    description: Edit ? bookInfo.description : "",
+  });
+
+  const handleChange = (inputeEle) => {
+    const Key = inputeEle.target.id;
+    const value = inputeEle.target.value;
+
+    setEditedBook((prevState) => {
+      return { ...prevState, [Key]: value };
+    });
+  };
+
+
 
   const title = useRef(null);
   const price = useRef(null);
@@ -24,8 +41,9 @@ const Addform = () => {
       description: description.current.value,
     };
 
-    dispatch(insertBook(bookData));
-
+    dispatch( Edit ? editeBooks(EditedBook) :insertBook(bookData));
+    setEdit(!Edit);
+    
     title.current.value = null;
     price.current.value = null;
     description.current.value = null;
@@ -44,7 +62,9 @@ const Addform = () => {
               id="title"
               required
               ref={title}
-            />
+              value={EditedBook.title}
+              onChange={handleChange}
+              />
           </div>
           <div className="form-group">
             <label htmlFor="price">Price</label>
@@ -54,19 +74,28 @@ const Addform = () => {
               id="price"
               required
               ref={price}
+              value={EditedBook.price}
+              onChange={handleChange}
+
             />
           </div>
           <div className="form-group">
             <label htmlFor="Description">Description</label>
             <textarea
               className="form-control"
-              id="Description"
+              id="description"
               rows="3"
               required
               ref={description}
+              value={EditedBook.description}
+              onChange={handleChange}
             ></textarea>
           </div>
-          <button type="submit" className="btn btn-primary" disabled={!isLoggedIn}>
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={!isLoggedIn}
+          >
             Submit
           </button>
         </form>
